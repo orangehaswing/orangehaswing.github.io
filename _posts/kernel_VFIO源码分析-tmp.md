@@ -1,10 +1,3 @@
----
-layout: post
-title: 博客模板功能介绍
-date: 2020-07-11
-tags: jekyll   
----
-
 # kernel_VFIO源码分析
 
 ## 设备与 vfio-pci 驱动绑定
@@ -15,9 +8,9 @@ tags: jekyll
    echo 0000:1a:00.3>/sys/bus/pci/devices/0000\:1a\:00.3/driver/unbind 
    echo'1spci-ns 0000:1a:00.3 |awk -F':| ' '(print $5” "$6)'` > /sys/bus/pci/drivers/vfio-pci/new_id 
    ```
-
+   
    该过程会调用 vfio 内核接口 vfio_pci_probe。这个函数会在 vfio_pci_init 驱动初始化时，注册 vfio_pci_driver。内部有个probe函数，具体实现是 vfio_pci_probe。
-
+   
    ```
    module_init(vfio_pci_init)
    	＃注册vfio pci驱动
@@ -51,13 +44,13 @@ tags: jekyll
    		＃ 最后创建vfio device
    		device=vfio_group_create_device
    ```
-
+   
    主要工作：
 
    a. 得到 iommu_group 结构体，表示 iommu 驱动层 group；
    b. 根据 iommu 层的 group 生成一个 vfio 层的 group。group 只会在第一个设备进行直通时候创建；
    c. 判断物理设备 dev 是否已经创建，如果没有，创建一个 vfio_device，并且绑定到 vfio_group上；
-
+   
 2. 在上述 vfio_pci_probe 过程中，会创建及初始化 group。
 
    ```
@@ -78,7 +71,7 @@ tags: jekyll
    ```
 
    主要工作：该函数会创建一个设备，就是 /dev/vfio/groupid。vfio_group 的成员 dev 保存这个设备。用户态通过该设备控制vfio_group。vfio_group 的 container 成员存放了该 vfio_group 链接到的 container。 
-
+   
 3. vfio_pci_probe 期间，也会创建 vfio device
 
    ````
@@ -98,6 +91,7 @@ tags: jekyll
    ````
 
    主要工作：vfio_device 表示 VFIO 层面的设备，其中 dev 成员表示物理设备。当用户态获取到 /vfio/group/$group_id 后，就分配了一个fd。可以使用iocl系统调用 VFIO_GROUP_GET_DEVICE_FD 获取到这里的 vfio device 的 fd，接首就可以使用ioctl系统调用获取vfio device 的私有数据。vfio_pci_ops 定义了对 vfio 设备操作的回调函数。
+   
 
 ## vfio-pci接口
 
@@ -351,6 +345,55 @@ static const struct vfio_iommu_driver_ops vfio_iommu_driver_ops_type1 = {
    ```
 
    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
