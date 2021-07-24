@@ -1,7 +1,7 @@
 ---
 layout: post
-title: kernel_VFIO源码分析
-date: 2020-07-11
+title: kernel_VFIO 源码分析
+date: 2021-07-24
 tags: jekyll   
 ---
 
@@ -16,7 +16,7 @@ echo'1spci-ns 0000:1a:00.3 |awk -F':| ' '(print $5” "$6)'` > /sys/bus/pci/driv
 
 该过程会调用 vfio 内核接口 vfio_pci_probe。这个函数会在 vfio_pci_init 驱动初始化时，注册 vfio_pci_driver。内部有个probe函数，具体实现是 vfio_pci_probe。
 
-```
+```c
 module_init(vfio_pci_init)
 	// 注册vfio pci驱动
 	pci_register_driver(&vfio_pci_driver)
@@ -37,23 +37,25 @@ vfio_pci_probe
 
 	// 添加vfio设备的具体实现
 	vfio_add_group_dev
-		＃返回iommu结构体，表示iommu驱动层group
+		// 返回iommu结构体，表示iommu驱动层group
 		iommu_group=iommu_group_get
-		＃ 根据iommu层group生成vfio的group
+		// 根据iommu层group生成vfio的group
 		group=vfio_group_get_from_iommu
 		if(group){
-			＃一个vfio group会对应多个vfio device， 如果第一次创建vfio device，就需要创建vfio group
+			// 一个vfio group会对应多个vfio device， 如果第一次创建vfio device，就需要创建vfio group
 			group=vfio_create_group(iommu_group)
 		}
 		device = vfio_group_get_device
-		＃ 最后创建vfio device
+		// 最后创建vfio device
 		device=vfio_group_create_device
 ```
 
 主要工作：
 
 a. 得到 iommu_group 结构体，表示 iommu 驱动层 group；
+
 b. 根据 iommu 层的 group 生成一个 vfio 层的 group。group 只会在第一个设备进行直通时候创建；
+
 c. 判断物理设备 dev 是否已经创建，如果没有，创建一个 vfio_device，并且绑定到 vfio_group上；
 
 2.在上述 vfio_pci_probe 过程中，会创建及初始化 group。
@@ -63,15 +65,15 @@ vfio_pci_probe
    vfio_add_group_dev
 		# drivers\vfio\vfio.c
 		vfio_create_group
-			＃ 获取iommu_group结构体
+			// 获取iommu_group结构体
 			group->iommu_group =iommu_group;
 			
-			＃创建vfio group设备，设备对应/vfio/group/＄group_id
+			// 创建vfio group设备，设备对应/vfio/group/＄group_id
 			device_create 
-			＃ 将vfio group设备保存在group结构的dev上
+			// 将vfio group设备保存在group结构的dev上
 			group->dev=dev
 
-			＃把vfio group设备添加到链表中
+			//把vfio group设备添加到链表中
 			list_add(&group->vfio_next, &vfio.group_list)
 ```
 
@@ -82,14 +84,14 @@ vfio_pci_probe
 ````c
 vfio_pci_probe
    vfio_add_group_dev
-   		# drivers\vfio\vfio.c
+   		// drivers\vfio\vfio.c
 		vfio_group_create_device
-			＃ 保存vfio device层相关信息：dev表示物理设备，group表示vfio group，ops表示vfio_pci_ops
+			// 保存vfio device层相关信息：dev表示物理设备，group表示vfio group，ops表示vfio_pci_ops
 			device->dev = dev;
 			device->group #group;
 			device->ops = ops;
 
-			＃ device_data是设备的私有数据，
+			// device_data是设备的私有数据，
 			device->device_data = device_data;
 			dev_set_drvdata(dev, device);
 			vfio_group_get
@@ -99,12 +101,12 @@ vfio_pci_probe
 
 ## vfio-pci接口
 
-```
+```c
 static const struct vfio_device_ops vfio_pci_ops={
 	.name       = "vfio-pci",
-	.open       = vfio_pci_open，＃使能设备，根据物理设备的配置信息生成vfio_pci_device配置信息
+	.open       = vfio_pci_open，//使能设备，根据物理设备的配置信息生成vfio_pci_device配置信息
 	.release    = vfio_pci_release,
-	.ioctl      = vfio_pci_ioctl，＃ioctl处理函数
+	.ioctl      = vfio_pci_ioctl，//ioctl处理函数
 	.read       = vfio_pci_read,
 	.write      = vfio_pci_write,
 	.mmap     	= vfio_pci_mmap,
@@ -116,7 +118,7 @@ static const struct vfio_device_ops vfio_pci_ops={
 
 重要的ioctl
 
-```
+```c
 vfio_pci_ioctl
 	if(cmd==VFIO_DEVICE_GET_INFO)
 		vfio_device_info
@@ -143,7 +145,7 @@ vfio_pci_ioctl
 
 主要工作：对iocti做处理。这里以 vfio_region_info 结构体为例进行分析：
 
-```
+```c
 struct vfio_region_info {
 	_u32  argsz; 
 	_u32  flags;
@@ -158,7 +160,7 @@ argsz 表示参数大小，是输入参数；flags 表明该内存区域允许�
 
 VFIO_PCI_CONFIG_REGION_INDEX:
 
-```
+```c
 switch (info.index) {
 	case VFIO_PCI_CONFIG_REGION_INDEX:
 		info.offset=VFIO_PCI_INDEX_TO_OFFSET(info.index);
@@ -174,7 +176,7 @@ VFIO_PCI_INDEX_TO_OFFSET 将内存区域索引转换成一个偏移。pdev-＞cf
 
 VFIO 模块在初始化函数 vfio_init 会注册一个 misc 设备 vfio_dev。
 
-```
+```c
 static struct miscdevice vfio_dev={
 	.minor=VFIO_MINOR,
 	.name=“vfio”,
@@ -186,7 +188,7 @@ static struct miscdevice vfio_dev={
 
 该 misc 设备的文件操作接口保存在 vfio_fops，并且会创建一个设备 /dev/vfio/vfio 全局变量 vfio。
 
-```
+```c
 static struct vfio {
 	struct class            *class;
 	struct list_head      	fommu_drivers_list;
@@ -202,7 +204,7 @@ static struct vfio {
 
 1.创建 container
 
-```
+```c
 vfio_fops_open
 	container = kzalloc(sizeof(*container), GFP_KERNEL)
 ```
@@ -211,7 +213,7 @@ vfio_fops_open
 
 2.group 附加到 container
 
-```
+```c
 vfio_group_set_container
 	...
 	ret=driver->ops->attach_group(container->iommu_data, group->iommu_group);
@@ -227,7 +229,7 @@ vfio iommu 驱动是 VFIO 接口和底层 iommu 驱动之间的通信桥梁。�
 
 vfio_iommu_type1:
 
-```
+```c
 static const struct vfio_iommu_driver_ops vfio_iommu_driver_ops_type1 = {
 	.name      		= "vfio-iommu-type1",
 	.owner          = THIS_MODULE,
@@ -245,7 +247,7 @@ static const struct vfio_iommu_driver_ops vfio_iommu_driver_ops_type1 = {
 
 1.初始化函数是 vfio_iommu_type1_init
 
-```
+```c
 static int _init vfio_iommu_type1_init(void) {
 	return vfio_register_iommu_driver(&vfio_iommu_driver_ops_type1);
 }
@@ -255,7 +257,7 @@ static int _init vfio_iommu_type1_init(void) {
 
 2.open 函数
 
-```
+```c
 vfio_iommu_type1_open
 	iommu->dma_list =RB_ROOT;
 ```
@@ -264,7 +266,7 @@ vfio_iommu_type1_open
 
 3.set iommu
 
-```
+```c
 vfio_ioctl_set_iommu
 	try_module_get
 	driver->ops->ioct1
@@ -279,7 +281,7 @@ c. 设置 container 的 iommu_driver 成员为 vfio_iommu_driver，iommu_data �
 
 4.dma 映射
 
-```
+```c
 vfio_fops_unl_ioct1
 	case VFIO_CHECK_EXTENSION:
 		vfio_loctl_check_extension
@@ -307,44 +309,44 @@ vfio_iommu_type1_ioct1
 
 用户态进程调用 ioctl(VFIO_IOMMU_MAP_DMA)接口，从用户态传入 vfio_iommu_type1_dma_map 参数
 
-```
+```c
 struct vfio_iommu_type1_dma_map{
 	_u32  	argsz;
 	_u32  	flags;
-	_u64   	vaddr;         /*Process virtual address */
-	_u64  	iova;         /*I0 virtual address */
-	_u64   	size;         /*Size of mapping (bytes) */
+	_u64   	vaddr;         /* Process virtual address */
+	_u64  	iova;         /* I0 virtual address */
+	_u64   	size;         /* Size of mapping (bytes) */
 };
 ```
 
 指定了用户态进程的虚拟地址和设备的 IOVA 地址的映射关系。其中，vaddr 表示用户态进程的虚拟地址，iova 表示设备使用的IO地址，size 表示大小。接着调用 vfio_dma_do_map 完成地址映射。
 
-```
-＃获取到用户态洋细信息map以及iommu fd
+```c
+// 获取到用户态洋细信息map以及iommu fd
 deu op eub ot
-	＃创建vfio dma结构体
+	// 创建vfio dma结构体
 	struct vfio_dma*dma
-	＃参数校验
+	// 参数校验
 	...
 
-	# 找到需要mmap的节点，判断是否已经被映射过
+	// 找到需要mmap的节点，判断是否已经被映射过
 	vfio_find_dma(iommu,iova,size)
-	＃/dev/vfio/vfio的可用dma数量减少1
+	// /dev/vfio/vfio的可用dma数量减少1
 	iommu->d-a_avail--;
 	# iova是device使用的dma地址
 	dma->iova-iova;
 	# vaddr是CPU使用的地址
 	dma->vaddr ·vaddr;
-	＃内存读写保护标记位
+	// 内存读写保护标记位
 	dma->prot·prot;
 	# 将dma链接到红黑树中，以确保下次查找该dma（iova space mapping）是否被映射过时能快速找到
 	vfio_link_dma(iommu, dma) 
 	# 锁住内有页
 	vfio_pin_map_dma(iommu, dma, size)
 		vfio_pin_map_dma_chunk
-		＃将从vaddr开始，长度为size内存区域的内存空间中的连续页锁定，避免其他应用使用这些页，同时获得这些页的物理地址HPA，
+		// 将从vaddr开始，长度为size内存区域的内存空间中的连续页锁定，避免其他应用使用这些页，同时获得这些页的物理地址HPA，
 		vfio_pin_pages_remote
-		＃ 利用iommu driver提供的iommu_map函数，将qemu地址空间的一部分（HVA）映射到iova空间，等到将该段IOVA空间和device绑定后，以后deviceBDMA主动发起的动作最终会落到qemu地址空间的一段内存上，也就是落在GPA空间上
+		// 利用iommu driver提供的iommu_map函数，将qemu地址空间的一部分（HVA）映射到iova空间，等到将该段IOVA空间和device绑定后，以后deviceBDMA主动发起的动作最终会落到qemu地址空间的一段内存上，也就是落在GPA空间上
 		vfio_iommu_map
 ```
 
