@@ -1,109 +1,115 @@
-# The Minimal theme
 
-[Build Status](https://github.com/pages-themes/minimal/actions/workflows/ci.yaml) [![Gem Version](https://badge.fury.io/rb/jekyll-theme-minimal.svg)](https://badge.fury.io/rb/jekyll-theme-minimal)
+[leopard](https://leopardpan.cn) 是一个简洁的博客模板，响应式主题， 适配了电脑、手机各种屏幕，看效果直接点击下面链接
+ 
+ * [博客链接](https://leopardpan.cn) （部署在国内，访问更快）         
+ * [Demo链接](https://leopardpan.github.io/) （部署在github page）         
 
-*Minimal is a Jekyll theme for GitHub Pages. You can [preview the theme to see what it looks like](http://pages-themes.github.io/minimal), or even [use it today](#usage).*
+如果你喜欢请 Star ，你的 Star 是我持续更新的动力, 谢谢 😄.
+ 
+### 你在搭建个人博客遇到任何问题都可以找我
 
-![Thumbnail of Minimal](thumbnail.png)
+遇到解决不了的问题 [需要技术支持联系我](https://leopardpan.cn/support/)
 
-## Usage
 
-To use the Minimal theme:
+### 环境要求
 
-1. Add the following to your site's `_config.yml`:
+* Jekyll 支持: Mac 、Windows、ubuntu 、Linux 操作系统                     
+* Jekyll 需要依赖: Ruby、bundler
 
-    ```yml
-    theme: jekyll-theme-minimal
-    ```
+### 使用手册
 
-2. Optionally, if you'd like to preview your site on your computer, add the following to your site's `Gemfile`:
+[Jekyll搭建个人博客](https://leopardpan.cn/2016/10/jekyll_tutorials1/)  :  使用Jekyll搭建个人博客的教程，及如何把这个博客模板修改成你自己的博客，里面也有大量的评论、Jekyll 搭建博客各种环境出现过的问题。
 
-    ```ruby
-    gem "github-pages", group: :jekyll_plugins
-    ```
+[HEXO搭建个人博客](https://leopardpan.cn/2015/08/HEXO%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/) : 使用 HEXO 基于 Github Page 搭建个人博客， 教程里面累计了大量提问和评论，如果你在搭建博客时遇到问题，可以看看这个教程。 
 
-## Customizing
 
-### Configuration variables
+#### 安装Jekyll
 
-Minimal will respect the following variables, if set in your site's `_config.yml`:
+[Jekyll中文官方文档](http://jekyll.bootcss.com/) ， 如果你已经安装过了 Jekyll，可以忽略此处。
 
-```yml
-title: [The title of your site]
-description: [A short description of your site's purpose]
-```
+> $ gem install jekyll
 
-Additionally, you may choose to set the following optional variables:
+#### 获取博客模板
 
-```yml
-show_downloads: ["true" or "false" to indicate whether to provide a download URL]
-google_analytics: [Your Google Analytics tracking ID]
-```
+> $ git clone https://github.com/leopardpan/leopardpan.github.io.git
 
-### Stylesheet
+或者直接[下载博客](https://github.com/leopardpan/leopardpan.github.io/archive/master.zip)   
 
-If you'd like to add your own custom styles:
+进leopardpan.github.io/ 目录下， 开启本地服务 
 
-1. Create a file called `/assets/css/style.scss` in your site
-2. Add the following content to the top of the file, exactly as shown:
-    ```scss
-    ---
-    ---
+> $ jekyll server
 
-    @import "{{ site.theme }}";
-    ```
-3. Add any custom CSS (or Sass, including imports) you'd like immediately after the `@import` line
+在浏览器输入 [127.0.0.1:4000](127.0.0.1:4000) ， 就可以看到博客效果了。
 
-*Note: If you'd like to change the theme's Sass variables, you must set new values before the `@import` line in your stylesheet.*
 
-### Layouts
+### 提示
 
-If you'd like to change the theme's HTML layout:
+>* 如果你想使用我的模板，请把 _posts/ 目录下的文章都去掉。
+>* 修改 _config.yml 文件里面的内容为你自己的个人信息。
 
-1. [Copy the original template](https://github.com/pages-themes/minimal/blob/master/_layouts/default.html) from the theme's repository<br />(*Pro-tip: click "raw" to make copying easier*)
-2. Create a file called `/_layouts/default.html` in your site
-3. Paste the default layout content copied in the first step
-4. Customize the layout as you'd like
+如果在部署博客的时候发现问题，可以直接在[Issues](https://github.com/leopardpan/leopardpan.github.io/issues)里面提问。        
 
-### Overriding GitHub-generated URLs
 
-Templates often rely on URLs supplied by GitHub such as links to your repository or links to download your project. If you'd like to override one or more default URLs:
+### 把这个博客变成你自己的博客
 
-1. Look at [the template source](https://github.com/pages-themes/minimal/blob/master/_layouts/default.html) to determine the name of the variable. It will be in the form of `{{ site.github.zip_url }}`.
-2. Specify the URL that you'd like the template to use in your site's `_config.yml`. For example, if the variable was `site.github.url`, you'd add the following:
-    ```yml
-    github:
-      zip_url: http://example.com/download.zip
-      another_url: another value
-    ```
-3. When your site is built, Jekyll will use the URL you specified, rather than the default one provided by GitHub.
+根据上面【提示】修改过后，在你的github里创建一个username.github.io的仓库，username指的值你的github的用户名。      
+创建完成后，把我的这个模板使用git push到你的username.github.io仓库下就行了。
+搭建博客如果遇到问题可以看看我教程[Jekyll搭建个人博客](https://leopardpan.cn/2016/10/jekyll_tutorials1/)。
 
-*Note: You must remove the `site.` prefix, and each variable name (after the `github.`) should be indent with two space below `github:`.*
 
-For more information, see [the Jekyll variables documentation](https://jekyllrb.com/docs/variables/).
+### 赞助
 
-## Roadmap
+你可以通过下方二维码赞助本项目，资金将用于服务器开销以及今后的公共服务
 
-See the [open issues](https://github.com/pages-themes/minimal/issues) for a list of proposed features (and known issues).
+感谢所有赞助过本项目的朋友，你们都为本项目贡献了自己的一份力量
 
-## Project philosophy
+<details>
 
-The Minimal theme is intended to make it quick and easy for GitHub Pages users to create their first (or 100th) website. The theme should meet the vast majority of users' needs out of the box, erring on the side of simplicity rather than flexibility, and provide users the opportunity to opt-in to additional complexity if they have specific needs or wish to further customize their experience (such as adding custom CSS or modifying the default layout). It should also look great, but that goes without saying.
+<summary>微信二维码</summary>
+<img width="300" src="https://leopardpan.github.io/images/payimg/weipayimg.jpg" alt="wechat">
+</details>
 
-## Contributing
+<details>
 
-Interested in contributing to Minimal? We'd love your help. Minimal is an open source project, built one contribution at a time by users like you. See [the CONTRIBUTING file](docs/CONTRIBUTING.md) for instructions on how to contribute.
+<summary>支付宝二维码</summary>
+<img width="300" src="https://leopardpan.github.io/images/payimg/alipayim.jpg" alt="alipay">
+</details>
 
-### Previewing the theme locally
 
-If you'd like to preview the theme locally (for example, in the process of proposing a change):
+### 效果预览
 
-1. Clone down the theme's repository (`git clone https://github.com/pages-themes/minimal`)
-2. `cd` into the theme's directory
-3. Run `script/bootstrap` to install the necessary dependencies
-4. Run `bundle exec jekyll serve` to start the preview server
-5. Visit [`localhost:4000`](http://localhost:4000) in your browser to preview the theme
+#### 头像效果
 
-### Running tests
+![](https://leopardpan.github.io/images/readme/icon.gif)
 
-The theme contains a minimal test suite, to ensure a site with the theme would build successfully. To run the tests, simply run `script/cibuild`. You'll need to run `script/bootstrap` one before the test script will work.
+如果你只想要我博客里的头像效果，你只需要拿 leopardpan.github.io/_includes/side-panel.html 文件里面 `头像效果` 和 leopardpan.github.io/css/main.css 里面最后面 `头像效果` 部分就行了。
+
+
+***
+
+#### 博客首页   
+
+![](https://leopardpan.github.io//images/readme/img4.png)   
+
+***  
+
+#### 每篇文章下面都支持打赏   
+
+![](https://leopardpan.github.io/images/readme/img3.png)
+
+#### 文章详情   
+
+![](https://leopardpan.github.io/images/readme/img1.png)
+
+
+#### 文章支持标签分类 
+
+![](https://leopardpan.github.io/images/readme/img2.png)
+
+#### 手机端效果
+
+<img width="300" src="https://leopardpan.github.io/images/readme/img5.png" alt="wechat">
+
+#### 感谢   
+
+本博客在[Vno Jekyll](https://github.com/onevcat/vno-jekyll)基础上修改的。  
