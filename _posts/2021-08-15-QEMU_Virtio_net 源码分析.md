@@ -13,7 +13,7 @@ virtio-net 方案，包括前端驱动和后端设备，以及自身定义的 vi
 
 virtio-net网络包的发送过程：
 
-![virtionet](.\virtionet.png)
+![virtionet](https://raw.githubusercontent.com/orangehaswing/orangehaswing.github.io/master/_posts/virtionet.png)
 
 ## Virtio-Net 后端
 
