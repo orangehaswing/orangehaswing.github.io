@@ -2,8 +2,14 @@
 layout: post
 title: QEMU_VFIO_MSIX 中断源码分析
 date: 2021-07-24
-tags: jekyll    
+tags: jekyll
 ---
+
+## 概述
+
+Guest OS 在启动阶段(包括 BIOS 和 kernel 两个阶段)，会对 vfio 设备的配置空间读写。当写设备配置空间时，在 qemu 内部的回调函数是 vfio_pci_write_config。该函数内部会对写操作进行判断。如果是配置 msi、msix 时，会使能/禁止设备终端。这个操作具体发生在，向 msi、msi-x 的 capability structure 中写入 msi/msi-x enable bit。
+
+如果Guest OS发送到数据能正确配置msi、msi-x功能，就会调用 vfio_msi_enable 或 vfio_msix_enable
 
 ## 使能中断
 
@@ -11,22 +17,24 @@ tags: jekyll
 
 在 vfio_realize 过程中，调用 vfio_add_capabllities 函数，内部将初始化 msix。在 qemu 中，对 MSI-X table area 的模拟由 qemu 来模拟。所以会创建一个 MSI-X 结构。
 
-```c
+```java
 vfio_add_capabilities
 	vfio_add_std_cap
 		vfio_msix_setup
 			msix_init
 ```
 
-当 guest OS 向 qemu msix 寄存器 MSIX enbale(bit 15) 写1时，就会使能 MSIX。
+当 guest OS 向 qemu msix 寄存器 MSIX enbale(message control bit 15) 写1时，就会使能 MSIX。
 
-使能 msix 过程：
+![msixtable](https://tcbbd.moe/assets/pci-msix-capability.png)
 
-```c
-vfio_pci_write_config
+使能 msix 过程，主要是申请gsi，创建中断需要的eventfd，并将这些资源向kvm注册。由kvm管理中断。
+
+```java
+vfio_pci_write_config()
 	// 如果写的offset地址落在msix cap ～cap＋12区间内，就进入使能阶段
 	else if (pdev->cap_present&QEMU_PCI_CAP_MSIX && 
-	ranges_overlap(addr, len, pdev->msix_cap, MSIX_CAP_LENGTH)) { 
+			 ranges_overlap(addr, len, pdev->msix_cap, MSIX_CAP_LENGTH)) { 
 		// 首先判断msix msg ctl标志位，记录上次msix是否已经使能
 		was_enabled = msix_enabled 
 		// 将这次写的数据，向msix msg ctl写入
@@ -44,7 +52,7 @@ vfio_pci_write_config
 	}
 	
 //  以enable msix， 分析函数调用过程
-vfio_msix_enable
+vfio_msix_enable()
 	// 关闭中断，需要关闭的是msi和INTx，msix在这时肯定没有使能
 	vfio_disable_interrupts
 	// 有多少个msix table entry，就会分配多少vector，将作为标记，记录irq eventfd，gsi是否被使用。
@@ -54,7 +62,7 @@ vfio_msix_enable
 	vfio_msix_vector_do_use
 
 	vfio_msix_vector_release
-		# 第一次将不会进入，因为这时virq＝-1
+		// 第一次将不会进入，因为这时virq＝-1
 		if (vector->virg >=e){
 			...
 		}
@@ -64,7 +72,7 @@ vfio_msix_enable
 		dev->msix_vector_use_notifier =use_notifier 
 		dev->msix_vector_release_notifier = release_notifier; 
 	
-# 分别分析三个函数
+// 分别分析三个函数
 vfio_msix_vector_do_use(&vdev->pdev,e,NULL,NULL)
 	入参vector是0，这时的vector一定没有被使用，会进入下面条件
 	if(!vector->use){ 
@@ -103,7 +111,7 @@ vfio_msix_vector_do_use(&vdev->pdev,e,NULL,NULL)
 			ioctl(vdev->vbasedev. fd, VFIO_DEVICE_SET_IRQS,irq_set) 
 	}
 
-	# 禁用PBA模拟
+	// 禁用PBA模拟
 	clear_bit(nr,vdev->msix->penmsix_msgding)
 ```
 
@@ -115,9 +123,11 @@ b. vfio_enable_vectors 利用 vfio 提供的 VFIO_DEVICE_SET_IRQS 命令为透�
 
 ## 注册中断回调
 
-接着上述的 vfio_enable_vectors 函数深入分析，入参是 irqfd，系统调用会在内核注册中断回调函数。
+接着上述的 vfio_enable_vectors 函数深入分析，入参是 irqfd，系统调用会在内核注册中断回调函数。调用的关键函数是 request_irq()，参考[链接](https://www.kernel.org/doc/html/v4.12/core-api/genericirq.html)。
 
-```c
+该函数向内核注册了一个中断回调函数：vfio_msihandler。这个回调函数的作用是，当有中断来时，会向 eventfd 写1。这个 eventfd 会提前注册到 kvm。所以 kvm 一直在 epoll 对应的 eventfd。当 eventfd 被写1后，kvm 接收到中断通知，调用 kvm posted interrupt，向对应的 CPU 发送中断。
+
+```java
 vfio_enable_vectors
 	ioctl(vdev- >vbasedev. fd,VFIO_DEVICE_SET_IRQS,irq_set)
 
@@ -177,7 +187,7 @@ kvm_set_msi
 		kvm_vcpu_kick
 ```
 
-## irqfd和gsi绑定过程
+## irqfd 和 gsi 绑定过程
 
 当向 irqfd 写入数据时，qemu 会调用 irqfd_inject 进行中断注入，将会根据水平触发还是上下沿触发，调用 kvm_set_irq。调用函数如下
 
@@ -328,9 +338,11 @@ kvm_vm_ioctl
 7. 调用回调函数，分配一个 irqfd，分配一个空闲的gsi全局中断向量号，向 kvm 注册中断路由表。将 irqfd 和 gsi 绑
    定，当 irqfd 中断注入时，可以找到对应的中断回调函数。将 irqfd 向 kvm 注册，生成对应的中断回调函数。
 
+## 参考链接
 
+1.https://www.kernel.org/doc/html/v4.12/core-api/genericirq.html
 
+2.https://www.cnblogs.com/haiyonghao/p/14709880.html
 
-
-
+3.https://github.com/qemu/qemu
 
