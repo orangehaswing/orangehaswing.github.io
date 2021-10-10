@@ -16,6 +16,8 @@ tags: jekyll
 
 虚拟机将要发送请求准备好，放在共享内存，然后把数据描述放在vring,写对应的 IO 端口。qemu 通过 epoll，接收到虚拟机的通知，从 vring 中读取数据描述信息。然后去对应的共享内存区域读取数据。qemu 在完成请求后，将数据结构放在vring，通过中断的方式通知虚拟机。虚拟机就可以直接从 vring 获取数据。
 
+![virtqueue](https://pic1.zhimg.com/80/v2-87e9ba97bd89daa99e56dcefc1cadf28_720w.jpg)
+
 vring 包含三个部分：descriptor table (用来表示IO请求的传输数据信息，包括长度，内存地址），available vring (前端驱动设置的表示后端设备可用的描述符表的索引），usedvring (后端设备在使用完描述符表后设置的索引）。
 
 ## virtio 设备初始化
