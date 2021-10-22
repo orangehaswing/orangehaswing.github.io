@@ -1,7 +1,9 @@
+---
 layout: post
 title: QEMU_KVM_PIC 中断控制器源码分析
-date: 2021-10-22
-tags: jekyll   
+date: 2021-10-17
+tags: jekyll
+---
 
 ## 硬件逻辑
 
@@ -490,7 +492,11 @@ pic_intack
 
 而 master 和 slave pic 的 irq_base 初始化时为 0，之后由 Guest 配置 PIC 时，通过创建 PIC 时注册的 picdev_write 函数来定义。
 
+## 参考
 
+1.https://www.cnblogs.com/haiyonghao/p/14440424.html
+
+2.https://image3.slideserve.com/6132873/block-diagram-architecture-of-8259-l.jpg
 
 
 
