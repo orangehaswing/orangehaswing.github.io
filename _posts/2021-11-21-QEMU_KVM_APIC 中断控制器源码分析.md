@@ -16,7 +16,7 @@ APIC有两种工作模式：
 
 整体架构：
 
-![apic](https://wsg-blogs-pic.oss-cn-beijing.aliyuncs.com/xenomai/apic-intel.png)
+![apic](https://gitee.com/orangehaswing/blog_images/raw/master/images/apic_structure.png)
 
 APIC 包含2个部分，LAPIC 和 IOAPIC 
 
@@ -34,7 +34,7 @@ IRR 与 ISR 两个寄存器，在处理一个 vector 的同时，缓存一个相
 
 LAPIC结构如下图：
 
-![LAPIC](https://wsg-blogs-pic.oss-cn-beijing.aliyuncs.com/xenomai/lapic-intel.png)
+![lapic](https://gitee.com/orangehaswing/blog_images/raw/master/images/lapic.png)
 
 2. IOAPIC 一般位于南桥上，响应来自外部设备的中断，并将中断发送给 LAPIC，然后由 LAPIC 发送给对应的 CPU，IOPIC 和 LAPIC 直接使用了系统总线。
 

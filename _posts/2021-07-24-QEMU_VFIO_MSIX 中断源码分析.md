@@ -26,7 +26,7 @@ vfio_add_capabilities
 
 当 guest OS 向 qemu msix 寄存器 MSIX enbale(message control bit 15) 写1时，就会使能 MSIX。
 
-![msixtable](https://tcbbd.moe/assets/pci-msix-capability.png)
+![msixtable](https://gitee.com/orangehaswing/blog_images/raw/master/images/MSIX_cap.png)
 
 使能 msix 过程，主要是申请gsi，创建中断需要的eventfd，并将这些资源向kvm注册。由kvm管理中断。
 

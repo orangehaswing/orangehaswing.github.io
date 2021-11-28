@@ -61,7 +61,7 @@ memset(&vdev->pdev.config[PCI_ROM_ADORESS], 0, 4);
 
 下图展示了 PCI 配置空间的布局：
 
-![pci_space](E:\personal_web\orangehaswing.github.io\_posts\pci_space.jpeg)
+![pci_space](https://gitee.com/orangehaswing/blog_images/raw/master/images/pci_space.jpeg)
 
 ## 复位COMMAND寄存器和设备
 
@@ -79,7 +79,7 @@ vfio_pci_reset
 
 command 寄存机的标记了设备状态。
 
-![pci_command](E:\personal_web\orangehaswing.github.io\_posts\pci_command.png)
+![pci_command](https://gitee.com/orangehaswing/blog_images/raw/master/images/pci_command.png)
 
 如上图所示，只有bit 0, 1, 2, 6, 8, 10 有效。IO space 和 MEM space 分别用于控制响应 bar IO 和 mem 空间的访问请求。Interrupt disable 用于控制设备是否产生 INTx 中断。
 
@@ -195,7 +195,7 @@ bar0 的地址值复制完成了。为什么这里给 offset 16 和 20 都赋值
 
 bar 的结构参考下图：
 
-![bar_regsier](E:\personal_web\orangehaswing.github.io\_posts\bar_regsier.png)
+![bar_regsier](https://gitee.com/orangehaswing/blog_images/raw/master/images/bar_regsier.png)
 
 
 同样的，将 bar3，bar4 视作一个 bar，赋值 bar size
@@ -224,11 +224,11 @@ offset:114 write    	val:  8080
 
 MSI-X cap 结构如下：
 
-![MSIX_cap](E:\personal_web\orangehaswing.github.io\_posts\MSIX_cap.png)
+![MSIX_cap](https://gitee.com/orangehaswing/blog_images/raw/master/images/MSIX_cap.png)
 
 其中 msg ctl 字段含义如下：
 
-![MSIX_msgctl](E:\personal_web\orangehaswing.github.io\_posts\MSIX_msgctl.png)
+![MSIX_msgctl](https://gitee.com/orangehaswing/blog_images/raw/master/images/MSIX_msgctl.png)
 
 由上可以知道，当写入 0xc080 时，会将第 14,15 置位，即屏蔽所有中断，使能 MSI-X。当写入 0x8080 时，会复位全局 Mask，可以进行中断请求。
 

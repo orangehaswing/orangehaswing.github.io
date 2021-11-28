@@ -9,7 +9,7 @@ tags: jekyll
 
 QEMU 和 KVM 均独立实现了 PIC，APIC( IOAPIC + LAPIC )
 
-![8259A](https://image3.slideserve.com/6132873/block-diagram-architecture-of-8259-l.jpg)
+![8259A](https://gitee.com/orangehaswing/blog_images/raw/master/images/8259A.jpg)
 
 中断传递过程：
 
@@ -408,7 +408,7 @@ vmx_inject_inq
 
 其 vmcs 涉及到一张表：
 
-![vmcs-interrupt](https://img2020.cnblogs.com/blog/2262526/202102/2262526-20210224113742557-1682405887.png)
+![vmcs-interrupt](https://gitee.com/orangehaswing/blog_images/raw/master/images/VMCS_VM_Entry_field.png)
 
 vm entry 时，kvm 将 irq(vector_number)写入了 Format of the VM-Entry Interruption-Information Field 的 bit7：0 ，并标记了该中断/异常类型为 External Interrupt，并将 bit31 置为 1，表明本次 vm entry 应该注入该中断。
 
