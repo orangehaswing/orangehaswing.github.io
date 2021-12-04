@@ -20,9 +20,9 @@ APIC有两种工作模式：
 
 APIC 包含2个部分，LAPIC 和 IOAPIC 
 
-1. LAPIC 即 local APIC，位于处理器中，除接收来自 IOAPIC 的中断外，还可以发送和接收来自其它核的 IPI。每个 LAPIC 都有自己的一系列寄存器、一个内部时钟(TSC)、一个本地定时设备和两条 IRQ 线 LINT0 和 LINT1
+1.LAPIC 即 local APIC，位于处理器中，除接收来自 IOAPIC 的中断外，还可以发送和接收来自其它核的 IPI。每个 LAPIC 都有自己的一系列寄存器、一个内部时钟(TSC)、一个本地定时设备和两条 IRQ 线 LINT0 和 LINT1
 
-   常用的寄存器包括：
+常用的寄存器包括：
 
 - ICR（Interrupt Command Register）用于发送IPI 
 - IRR（Interrupt Request Register）当前LAPIC接收到的中断请求 
@@ -36,7 +36,7 @@ LAPIC结构如下图：
 
 ![lapic](https://gitee.com/orangehaswing/blog_images/raw/master/images/lapic.png)
 
-2. IOAPIC 一般位于南桥上，响应来自外部设备的中断，并将中断发送给 LAPIC，然后由 LAPIC 发送给对应的 CPU，IOPIC 和 LAPIC 直接使用了系统总线。
+2.IOAPIC 一般位于南桥上，响应来自外部设备的中断，并将中断发送给 LAPIC，然后由 LAPIC 发送给对应的 CPU，IOPIC 和 LAPIC 直接使用了系统总线。
 
 当 IO APIC 收到设备的中断请求时，通过寄存器决定将中断发送给哪个 LAPIC（CPU）。位于 0x10 - 0x3F 地址偏移的地方，存放着 24个 64bit 的寄存器，每个对应 IOAPIC 的 24 个管脚之一，这 24 个寄存器统称为 Redirecti on Table ，每个寄存器都是一个 entry。该重定向表会在系统初始化时由内核设置，在系统启动后也可动态修改该表。
 
