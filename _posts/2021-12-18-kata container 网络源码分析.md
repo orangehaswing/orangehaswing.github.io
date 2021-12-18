@@ -177,7 +177,7 @@ createEndpointsFromScan
 
 上述过程完整的说明了如何在 namespace 创建 tap 设备，并把 net 网卡设备添加到 qemu 启动命令行
 
-### 热插网络
+## 热插网卡
 
 当使用 factory 模板启动时，需要用到热插网卡，kata container 源码注释内容如下
 
