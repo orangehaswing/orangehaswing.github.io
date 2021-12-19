@@ -9,14 +9,14 @@ tags: jekyll
 
 1. 设置 kata 配置文件(/usr/share/defaults/kata-containers/configuration.toml)
 
-   ```
+   ```go
    internetworking_model = "tcfilter"
    disable_new_netns = false
    ```
 
 2. 使用 containerd，并配置 config 使用 cni 插件(/etc/containerd/config.toml)
 
-   ```
+   ```go
    [plugins.cri.cni]
    bin_dir = "/opt/cni/bin"
    conf_dir = "/etc/cni/net.d"
@@ -24,7 +24,7 @@ tags: jekyll
 
 3. 编译 cni 插件二进制和配置文件
 
-   ```
+   ```go
    /opt/cni/bin/
    ...
    
@@ -48,7 +48,7 @@ tags: jekyll
 
 4. 使用 crictl 创建 sandbox
 
-   ```
+   ```go
    crictl runp pod-config.json
    {
    	"metadata":{
@@ -89,7 +89,7 @@ tags: jekyll
 
 在kata 2.x 新版本，没有 kata-network 组件，所以在 kata 源码中，使用冷启动网卡的方式，创建设备 kata runtime 创建过程如下：
 
-```
+```go
 virtcontainers/api.go
 CreateSandbox
 	createSandboxFromConfig(ctx, sandboxConfig, factory)
@@ -98,7 +98,7 @@ CreateSandbox
 
 在创建 sandbox 过程中，会判断是否需要创建网络。如果需要，则在 namespace 做相应的操作。
 
-```\
+```go
 virtcontainers/sandbox.go
 createNetwork
 	// 如果在配置空间设置disable network namespace，直接返回，不创建网络
@@ -109,7 +109,7 @@ createNetwork
 
 接着保存 network NS，添加虚拟机网卡设备
 
-```
+```go
 s.networkNS = NetworkNamespace(
 	NetNsPath:	s.config.NetworkConfig.NetNSPath,
 	NetNsCreated:	s.config.NetworkConfig.NetNsCreated,
@@ -126,7 +126,7 @@ if s.config.NetworkConfig.NetmonConfig.Enable
 
 深入分析 network 添加设备的过程
 
-```
+```go
 s.network.Add
 	// virtcontainers/network.go
 	createEndpointsFromScan(config.NetNSPath, config)
@@ -158,7 +158,7 @@ Attach
 
 其中创建 namespace 中 tap 设备使用的函数是 createEndpointsFromScan()
 
-```
+```go
 virtcontainers/network.go
 createEndpointsFromScan
 	// 获取namespace路径，并获取handle
@@ -181,7 +181,7 @@ createEndpointsFromScan
 
 当使用 factory 模板启动时，需要用到热插网卡，kata container 源码注释内容如下
 
-```
+```go
 virtcontainers/sandbox.go
 startVM
 	// In case of vm factory, network interfaces are hotplugged
@@ -190,7 +190,7 @@ startVM
 
 从上可知，当第一次使用模板启动，第二次开始，使用网卡热插方式。
 
-```
+```go
 virtcontainers/sandbox.go
 startVM
 	// 如果factory 不为空，则热插
@@ -201,7 +201,7 @@ startVM
 
 入参为 true，则会在 Add 函数走 hotplug 流程。详细代码如下：
 
-```
+```go
 virtcontainers/network.go
 Add
 	createEndpointsFromScan(config.NetNSPath, config)
@@ -213,7 +213,7 @@ Add
 
 veth pair 的 HotAttach() 函数代码主要流程和 Attach 类似。不同的是，最终调用 hypervisor 层的 hotplugAddDevice()，即热插网卡。
 
-```
+```go
 virtcontainers/veth_endpoint.go
 HotAttach
 	// tcfilter模式，创建tap设备
@@ -224,7 +224,7 @@ HotAttach
 
 在 qemu 执行网卡热插操作
 
-```
+```go
 virtcontainers/qemu.go
 hotplugAddDevice
 	q.hotplugNet(ctx, devinfo.(Endpoint))
@@ -240,7 +240,7 @@ hotplugAddDevice
 
 无论是启动时加载网卡，或热插网卡，当创建虚殿机后，都需要更新虚拟机内网卡信息。这个步骤在 startVM 函数完成。
 
-```
+```go
 virtcontainers/sandbox.go
 startVM
 	s.agent.startSandbox(ctx,s)
@@ -268,92 +268,3 @@ startVM
 		}
 		k.sendReq(ctx, req)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
